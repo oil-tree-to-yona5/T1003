@@ -1,0 +1,2114 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+<title>算数チャレンジ</title>
+<style>
+  :root{
+    --bg: #17302A;
+    --panel: #1E3D34;
+    --panel-edge: #2A4E43;
+    --chalk: #F3EEDF;
+    --chalk-dim: #B9CBC3;
+    --yellow: #E7C568;
+    --coral: #E58E7D;
+    --sky: #7FB8C4;
+    --special: #C99BE0;
+  }
+  *{box-sizing:border-box;}
+  html,body{height:100%;}
+  body{
+    margin:0;
+    background:
+      radial-gradient(ellipse at 20% 0%, rgba(255,255,255,0.04), transparent 55%),
+      var(--bg);
+    color:var(--chalk);
+    font-family:"Hiragino Maru Gothic ProN","Yu Gothic",sans-serif;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height:100vh;
+    padding:20px 14px;
+    -webkit-tap-highlight-color: transparent;
+  }
+  .wrap{width:100%;max-width:420px;}
+
+  .title{
+    font-size:26px;
+    font-weight:900;
+    text-align:center;
+    color:var(--chalk);
+    margin:0 0 4px;
+    letter-spacing:.02em;
+  }
+  .title span{color:var(--yellow);}
+  .subtitle{
+    text-align:center;
+    color:var(--chalk-dim);
+    font-size:12.5px;
+    margin:0 0 12px;
+  }
+
+  .points-bar{
+    display:flex;
+    justify-content:center;
+    gap:18px;
+    margin-bottom:16px;
+    font-size:13px;
+    color:var(--chalk-dim);
+  }
+  .points-bar b{color:var(--yellow);font-size:15px;}
+
+  .menu-row{
+    display:flex;
+    gap:10px;
+    margin-bottom:18px;
+  }
+  .menu-btn{
+    flex:1;
+    padding:12px 8px;
+    border:none;
+    border-radius:12px;
+    font-size:13px;
+    font-weight:700;
+    cursor:pointer;
+    text-align:center;
+    transition:transform .12s;
+  }
+  .menu-btn:active{transform:scale(0.96);}
+  .btn-gacha{background:linear-gradient(135deg, var(--yellow), #F0A868); color:#2A2110;}
+  .btn-ticket{background:var(--panel); border:1px solid var(--panel-edge); color:var(--chalk);}
+
+  .settings-link{
+    display:block;
+    width:100%;
+    background:transparent;
+    border:none;
+    color:var(--chalk-dim);
+    text-decoration:underline;
+    font-size:12.5px;
+    text-align:center;
+    padding:6px;
+    margin-bottom:14px;
+    cursor:pointer;
+  }
+
+  .category-select{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:10px;
+    margin:28px 0 22px;
+  }
+  .category-btn{
+    padding:22px 8px;
+    border-radius:14px;
+    border:1px solid var(--panel-edge);
+    background:var(--panel);
+    color:var(--chalk);
+    font-size:17px;
+    font-weight:900;
+    cursor:pointer;
+    transition:transform .12s, border-color .12s, background .12s;
+  }
+  .category-btn:active{transform:scale(0.97);}
+  .category-btn:nth-child(1){border-color:var(--sky);}
+  .category-btn:nth-child(2){border-color:var(--yellow);}
+  .category-btn:nth-child(3){border-color:var(--coral);}
+  .category-btn:nth-child(4){border-color:var(--special);}
+  .category-btn small{
+    display:block;
+    font-size:11px;
+    font-weight:500;
+    color:var(--chalk-dim);
+    margin-top:4px;
+  }
+  .category-btn.locked{
+    opacity:.5;
+    color:var(--chalk-dim);
+    font-size:15px;
+  }
+  .title-status{
+    min-height:18px;
+    text-align:center;
+    font-size:12.5px;
+    color:var(--coral);
+    margin:-8px 0 14px;
+  }
+  .title-remaining{
+    text-align:center;
+    font-size:12.5px;
+    color:var(--chalk-dim);
+    margin:10px 0 0;
+  }
+  .title-remaining b{color:var(--yellow);}
+
+  .dots{
+    display:flex;
+    gap:6px;
+    justify-content:center;
+    margin-bottom:18px;
+    flex-wrap:wrap;
+  }
+  .dot{
+    width:9px;height:9px;border-radius:50%;
+    background:rgba(255,255,255,0.14);
+    border:1px solid rgba(255,255,255,0.18);
+    transition:background .25s, transform .25s;
+  }
+  .dot.done-ok{background:var(--yellow);border-color:var(--yellow);}
+  .dot.done-ng{background:var(--coral);border-color:var(--coral);}
+  .dot.current{transform:scale(1.4);border-color:var(--sky);}
+
+  .card{
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    border-radius:18px;
+    padding:28px 20px 24px;
+    box-shadow: 0 18px 40px -20px rgba(0,0,0,0.55);
+    position:relative;
+  }
+
+  .special-banner{
+    display:none;
+    text-align:center;
+    background:linear-gradient(135deg, var(--special), #8E6BB0);
+    color:#241433;
+    font-weight:900;
+    font-size:13px;
+    border-radius:10px;
+    padding:8px;
+    margin-bottom:14px;
+    letter-spacing:.02em;
+  }
+  .card.is-special .special-banner{display:block;}
+
+  .count{
+    font-size:13px;
+    color:var(--chalk-dim);
+    text-align:center;
+    margin-bottom:6px;
+  }
+
+  .problem{
+    font-size:42px;
+    font-weight:900;
+    text-align:center;
+    color:var(--chalk);
+    margin:6px 0 26px;
+    line-height:1.2;
+  }
+  .problem .op{color:var(--sky);padding:0 6px;}
+
+  .answer-row{
+    display:flex;
+    justify-content:center;
+    align-items:flex-end;
+    gap:16px;
+    margin-bottom:22px;
+  }
+  .field{
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+  }
+  .field label{
+    font-size:12px;
+    color:var(--chalk-dim);
+    margin-bottom:6px;
+  }
+  .field input{
+    width:78px;
+    height:58px;
+    text-align:center;
+    font-size:26px;
+    font-weight:700;
+    color:var(--bg);
+    background:var(--chalk);
+    border:none;
+    border-radius:10px;
+    outline:none;
+  }
+  .field input:focus{
+    box-shadow:0 0 0 3px var(--sky);
+  }
+  .amari-tag{
+    font-size:13px;
+    color:var(--chalk-dim);
+    padding-bottom:16px;
+  }
+
+  .special-block{
+    display:none;
+    background:rgba(201,155,224,0.12);
+    border:1px dashed var(--special);
+    border-radius:14px;
+    padding:16px 14px;
+    margin-bottom:22px;
+    text-align:center;
+  }
+  .card.is-special .special-block{display:block;}
+  .special-block .special-label{
+    font-size:12px;
+    color:var(--special);
+    font-weight:700;
+    margin-bottom:10px;
+  }
+  .special-block .problem{
+    font-size:30px;
+    margin:0 0 14px;
+  }
+  .special-block .field input{
+    width:100px;
+  }
+
+  .btn{
+    width:100%;
+    padding:15px;
+    border:none;
+    border-radius:12px;
+    font-size:16px;
+    font-weight:700;
+    cursor:pointer;
+    transition:transform .12s, filter .12s;
+  }
+  .btn:active{transform:scale(0.97);}
+  .btn-check{background:var(--yellow);color:#2A2110;}
+  .btn-next{background:var(--sky);color:#0F2A30;}
+  .btn-retry{background:var(--chalk);color:var(--bg);}
+  .btn-end{
+    background:transparent;
+    color:var(--chalk-dim);
+    text-decoration:underline;
+    font-weight:500;
+    font-size:13px;
+    padding:10px;
+    margin-top:4px;
+  }
+  .btn:disabled{
+    opacity:.45;
+    cursor:not-allowed;
+  }
+
+  .feedback{
+    text-align:center;
+    min-height:26px;
+    margin-bottom:14px;
+    font-weight:700;
+    font-size:15px;
+  }
+  .feedback.ok{color:var(--yellow);}
+  .feedback.ng{color:var(--coral);}
+
+  .result{
+    text-align:center;
+  }
+  .result .big{
+    font-size:48px;
+    font-weight:900;
+    color:var(--yellow);
+    margin:8px 0 2px;
+  }
+  .result .earned{
+    color:var(--sky);
+    font-size:16px;
+    margin-bottom:2px;
+    font-weight:700;
+  }
+  .result .total{
+    color:var(--chalk-dim);
+    font-size:13px;
+    margin-bottom:16px;
+  }
+  .result .msg{
+    color:var(--chalk-dim);
+    font-size:14px;
+    margin-bottom:22px;
+  }
+  .review{
+    text-align:left;
+    background:rgba(0,0,0,0.15);
+    border-radius:12px;
+    padding:12px 14px;
+    margin-bottom:20px;
+    max-height:220px;
+    overflow-y:auto;
+  }
+  .review-item{
+    display:flex;
+    justify-content:space-between;
+    font-size:13.5px;
+    padding:5px 0;
+    border-bottom:1px solid rgba(255,255,255,0.06);
+    gap:8px;
+  }
+  .review-item:last-child{border-bottom:none;}
+  .review-item .rtext{flex:1;}
+  .review-item .mark-ok{color:var(--yellow);}
+  .review-item .mark-ng{color:var(--coral);}
+
+  .overlay{
+    position:fixed;
+    inset:0;
+    background:rgba(8,18,15,0.72);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    padding:20px;
+    z-index:50;
+    overflow-y:auto;
+  }
+  .overlay.hidden{display:none;}
+  .overlay-card{
+    background:var(--panel);
+    border:1px solid var(--panel-edge);
+    border-radius:18px;
+    padding:26px 22px;
+    max-width:360px;
+    width:100%;
+    text-align:center;
+    margin:auto;
+  }
+  .overlay-card h2{
+    margin:0 0 14px;
+    font-size:18px;
+    color:var(--chalk);
+  }
+  .gacha-limit-info{
+    font-size:12px;
+    color:var(--chalk-dim);
+    text-align:center;
+    margin-bottom:14px;
+    min-height:14px;
+  }
+  .gacha-panel{
+    background:rgba(0,0,0,0.15);
+    border-radius:14px;
+    padding:16px 14px;
+    margin-bottom:14px;
+    text-align:center;
+    border:1px solid var(--panel-edge);
+  }
+  .gacha-panel.special-panel{border-color:var(--special);}
+  .gacha-panel-title{
+    font-weight:900;
+    font-size:15px;
+    margin-bottom:8px;
+  }
+  .gacha-panel-balance{
+    font-size:13px;
+    color:var(--chalk-dim);
+    margin-bottom:2px;
+  }
+  .gacha-panel-balance b{color:var(--yellow);}
+  .gacha-panel.special-panel .gacha-panel-balance b{color:var(--special);}
+  .gacha-panel-cost{
+    font-size:12px;
+    color:var(--chalk-dim);
+    margin-bottom:12px;
+  }
+  .gacha-result-icon{
+    font-size:52px;
+    margin-bottom:10px;
+  }
+  .gacha-result-title{
+    font-size:22px;
+    font-weight:900;
+    margin-bottom:6px;
+  }
+  .gacha-result-title.rank1{color:var(--yellow);}
+  .gacha-result-title.rank2{color:var(--sky);}
+  .gacha-result-title.rank3{color:var(--chalk-dim);}
+  .gacha-result-sub{
+    font-size:13px;
+    color:var(--chalk-dim);
+    margin-bottom:20px;
+  }
+  .ticket-list{
+    text-align:left;
+    margin-bottom:6px;
+  }
+  .ticket-section-label{
+    font-size:11px;
+    color:var(--chalk-dim);
+    text-transform:uppercase;
+    letter-spacing:.05em;
+    margin:14px 0 4px;
+  }
+  .ticket-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    padding:12px 4px;
+    border-bottom:1px solid rgba(255,255,255,0.08);
+    font-size:15px;
+    gap:10px;
+  }
+  .ticket-row:last-child{border-bottom:none;}
+  .ticket-row .tname{display:flex;align-items:center;gap:8px;flex:1;}
+  .ticket-row .tcount{font-weight:900;font-size:17px;min-width:18px;text-align:center;}
+  .ticket-row.rank1 .tcount{color:var(--yellow);}
+  .ticket-row.rank2 .tcount{color:var(--sky);}
+  .ticket-row.rank3 .tcount{color:var(--chalk-dim);}
+  .ticket-row.rank-special .tcount{color:var(--special);}
+  .use-btn{
+    border:none;
+    border-radius:8px;
+    padding:8px 12px;
+    font-size:12.5px;
+    font-weight:700;
+    background:var(--sky);
+    color:#0F2A30;
+    cursor:pointer;
+    transition:transform .12s, opacity .12s;
+  }
+  .use-btn:active{transform:scale(0.94);}
+  .use-btn:disabled{
+    background:rgba(255,255,255,0.1);
+    color:var(--chalk-dim);
+    cursor:not-allowed;
+  }
+  .ticket-status{
+    min-height:18px;
+    font-size:12.5px;
+    color:var(--yellow);
+    margin:10px 0 14px;
+    text-align:center;
+  }
+  .btn-close{background:var(--chalk);color:var(--bg);}
+
+  .settings-section{
+    text-align:left;
+    margin-bottom:18px;
+  }
+  .settings-section h3{
+    font-size:13px;
+    color:var(--chalk-dim);
+    margin:0 0 10px;
+    text-transform:uppercase;
+    letter-spacing:.04em;
+  }
+  .settings-section h4{
+    font-size:12px;
+    color:var(--chalk-dim);
+    margin:0 0 8px;
+  }
+  .settings-row{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    margin-bottom:10px;
+  }
+  .settings-row .rank-badge{
+    width:56px;
+    font-size:12px;
+    text-align:left;
+    flex-shrink:0;
+    color:var(--chalk-dim);
+  }
+  .settings-row .rank-badge b{color:var(--chalk);display:block;font-size:13px;}
+  .settings-row input[type="text"]{
+    flex:1;
+    min-width:0;
+    padding:9px 10px;
+    border-radius:8px;
+    border:none;
+    background:var(--chalk);
+    color:var(--bg);
+    font-size:13px;
+    font-weight:600;
+  }
+  .settings-row input[type="number"]{
+    width:58px;
+    padding:9px 6px;
+    border-radius:8px;
+    border:none;
+    background:var(--chalk);
+    color:var(--bg);
+    font-size:13px;
+    font-weight:700;
+    text-align:center;
+  }
+  .settings-row .pct-label{
+    font-size:12px;
+    color:var(--chalk-dim);
+    width:20px;
+    flex-shrink:0;
+  }
+  .settings-row.readonly input[type="number"]{
+    background:rgba(255,255,255,0.12);
+    color:var(--chalk-dim);
+  }
+  .settings-cost-row{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    margin-bottom:12px;
+  }
+  .settings-cost-row label{
+    font-size:13px;
+    color:var(--chalk-dim);
+    flex:1;
+  }
+  .settings-cost-row input{
+    width:70px;
+    padding:9px 6px;
+    border-radius:8px;
+    border:none;
+    background:var(--chalk);
+    color:var(--bg);
+    font-size:14px;
+    font-weight:700;
+    text-align:center;
+  }
+  .settings-cost-row .pct-suffix{
+    font-size:13px;
+    color:var(--chalk-dim);
+    width:16px;
+    flex-shrink:0;
+  }
+  .settings-divider{
+    border:none;
+    border-top:1px solid var(--panel-edge);
+    margin:18px 0;
+  }
+  .ev-box{
+    background:rgba(0,0,0,0.15);
+    border-radius:10px;
+    padding:10px 12px;
+    margin-bottom:12px;
+  }
+  .ev-title{
+    font-size:11px;
+    color:var(--chalk-dim);
+    margin-bottom:6px;
+  }
+  .ev-row{
+    font-size:13px;
+    color:var(--chalk);
+    padding:2px 0;
+  }
+  .ev-row b{color:var(--yellow);}
+  .ev-row-highlight{
+    margin-top:4px;
+    padding-top:6px;
+    border-top:1px dashed var(--panel-edge);
+    font-weight:700;
+  }
+  .ev-row-highlight b{color:var(--special);}
+  .ev-note{
+    font-size:10.5px;
+    color:var(--chalk-dim);
+    margin-top:6px;
+    line-height:1.4;
+  }
+  .settings-status{
+    min-height:18px;
+    font-size:12.5px;
+    text-align:center;
+    margin-bottom:12px;
+  }
+  .settings-status.ok{color:var(--yellow);}
+  .settings-status.ng{color:var(--coral);}
+  .pw-input{
+    width:100%;
+    padding:14px;
+    border-radius:10px;
+    border:none;
+    background:var(--chalk);
+    color:var(--bg);
+    font-size:20px;
+    font-weight:700;
+    text-align:center;
+    letter-spacing:.2em;
+    margin-bottom:14px;
+    outline:none;
+  }
+  .btn-row{
+    display:flex;
+    gap:10px;
+  }
+  .btn-row .btn{flex:1;}
+  .btn-secondary{background:transparent;border:1px solid var(--panel-edge);color:var(--chalk-dim);}
+
+  .hidden{display:none;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div id="titleScreen">
+    <div class="title">算数<span>チャレンジ</span></div>
+    <div class="subtitle">しゅるいを えらんでね</div>
+    <div class="title-remaining" id="titleRemaining"></div>
+
+    <div class="points-bar">
+      <div>ふくびきチケット: <b id="walletTop">0</b>枚</div>
+    </div>
+    <div class="points-bar">
+      <div>スペシャルチケット: <b id="specialTicketTop">0</b>枚</div>
+    </div>
+
+    <div class="menu-row">
+      <button class="menu-btn btn-gacha" id="gachaBtn">🎰 ふくびき</button>
+      <button class="menu-btn btn-exchange" id="exchangeMenuBtn">🎁 交換</button>
+    </div>
+
+    <div class="category-select">
+      <button class="category-btn" data-category="division">わり算<small>÷</small></button>
+      <button class="category-btn" data-category="multiply">かけ算<small>×</small></button>
+      <button class="category-btn" data-category="add_basic">足し算<small>初級</small></button>
+      <button class="category-btn" data-category="add_advanced">足し算<small>上級</small></button>
+      <button class="category-btn locked" data-lockid="subtract" data-category="subtract" data-base="ひきざん">🔒 ひきざん</button>
+      <button class="category-btn locked" data-lockid="fraction" data-category="fraction" data-base="分数">🔒 分数</button>
+    </div>
+    <div class="title-status" id="titleStatus"></div>
+
+    <button class="settings-link" id="settingsLinkBtn">⚙️ 設定</button>
+  </div>
+
+  <div id="mainScreen" class="hidden">
+    <div class="title">算数<span>チャレンジ</span></div>
+    <div class="subtitle" id="categorySubtitle">わり算編</div>
+
+    <div class="points-bar">
+      <div>ふくびきチケット: <b id="walletTopMain">0</b>枚</div>
+    </div>
+    <div class="points-bar">
+      <div>スペシャルチケット: <b id="specialTicketTopMain">0</b>枚</div>
+    </div>
+
+    <button class="settings-link" id="backToTitleBtn">🏠 タイトルへ もどる</button>
+
+    <div class="dots" id="dots"></div>
+
+    <div class="card" id="quizCard">
+      <div class="special-banner">🌟 スペシャル問題！たしざんもチャレンジ 🌟</div>
+      <div class="count" id="count">1 / 5</div>
+      <div class="problem" id="problem">-- <span class="op">÷</span> --</div>
+
+      <div class="answer-row" id="divisionAnswerRow">
+        <div class="field">
+          <label>しょう</label>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="quotientInput" maxlength="3">
+        </div>
+        <div class="amari-tag">あまり</div>
+        <div class="field">
+          <label>あまり</label>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="remainderInput" maxlength="3">
+        </div>
+      </div>
+
+      <div class="answer-row" id="singleAnswerRow" style="display:none;">
+        <div class="field">
+          <label>こたえ</label>
+          <input type="text" inputmode="numeric" pattern="[0-9]*" id="singleAnswerInput" maxlength="5">
+        </div>
+      </div>
+
+      <div class="special-block" id="specialBlock">
+        <div class="special-label">ボーナス たしざん もんだい</div>
+        <div class="problem" id="specialProblem">-- <span class="op">+</span> --</div>
+        <div class="answer-row" style="margin-bottom:0;">
+          <div class="field">
+            <label>こたえ</label>
+            <input type="text" inputmode="numeric" pattern="[0-9]*" id="specialAnswerInput" maxlength="4">
+          </div>
+        </div>
+      </div>
+
+      <div class="feedback" id="feedback"></div>
+      <button class="btn btn-check" id="checkBtn">こたえあわせ</button>
+      <button class="btn btn-next hidden" id="nextBtn">つぎへ</button>
+      <button class="btn btn-end" id="endBtn">ここで終了する</button>
+    </div>
+
+    <div class="card result hidden" id="resultCard">
+      <div class="count">けっか</div>
+      <div class="big" id="scoreText">0 / 5</div>
+      <div class="earned" id="earnedText">+0枚 獲得</div>
+      <div class="total" id="totalText">のこりのふくびきチケット: 0枚</div>
+      <div class="msg" id="scoreMsg"></div>
+      <div class="review" id="review"></div>
+      <button class="btn btn-retry" id="retryBtn">もういちど</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="exchangeOverlay">
+  <div class="overlay-card">
+    <h2>交換</h2>
+    <div style="font-size:13px;color:var(--chalk-dim);text-align:center;margin-bottom:2px;">こうかんできるポイント</div>
+    <div style="font-size:34px;font-weight:900;color:var(--yellow);text-align:center;margin-bottom:20px;"><span id="exchangeBalanceText">0</span> pt</div>
+    <div class="settings-cost-row">
+      <label for="exchangeAmountInput">こうかんするポイント</label>
+      <input type="number" id="exchangeAmountInput" min="1">
+    </div>
+    <div class="settings-status" id="exchangeStatus"></div>
+    <button class="btn btn-check" id="exchangeBtn">交換する</button>
+    <button class="btn btn-close" id="exchangeCloseBtn" style="margin-top:10px;">とじる</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="gachaScreenOverlay">
+  <div class="overlay-card">
+    <h2>ふくびき</h2>
+    <div class="gacha-limit-info" id="gachaLimitInfo"></div>
+
+    <div class="gacha-panel">
+      <div class="gacha-panel-title">🎰 ノーマルふくびき</div>
+      <div class="gacha-panel-balance">ふくびきチケット: <b id="walletBalanceText">0</b>枚</div>
+      <div class="gacha-panel-cost">1回: <span id="normalCostText">5</span>枚</div>
+      <button class="btn btn-check" id="spinNormalBtn">ノーマルふくびきを回す</button>
+    </div>
+
+    <div class="gacha-panel special-panel">
+      <div class="gacha-panel-title">✨ スペシャルふくびき</div>
+      <div class="gacha-panel-balance">スペシャルチケット: <b id="specialBalanceText">0</b>枚</div>
+      <div class="gacha-panel-cost">1回: <span id="specialCostText">1</span>枚</div>
+      <button class="btn btn-check" id="spinSpecialBtn">スペシャルふくびきを回す</button>
+    </div>
+
+    <button class="btn btn-close" id="gachaScreenCloseBtn">とじる</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="gachaOverlay">
+  <div class="overlay-card">
+    <h2 id="gachaOverlayTitle">ふくびき けっか</h2>
+    <div class="gacha-result-icon" id="gachaIcon">🎁</div>
+    <div class="gacha-result-title" id="gachaTitle">-</div>
+    <div class="gacha-result-sub" id="gachaSub">-</div>
+    <button class="btn btn-close" id="gachaCloseBtn">とじる</button>
+  </div>
+</div>
+
+<div class="overlay hidden" id="passwordOverlay">
+  <div class="overlay-card">
+    <h2 id="passwordOverlayTitle">パスワードを入力</h2>
+    <input type="password" inputmode="numeric" class="pw-input" id="passwordInput" maxlength="12" placeholder="••••">
+    <div class="settings-status" id="passwordStatus"></div>
+    <div class="btn-row">
+      <button class="btn btn-secondary" id="passwordCancelBtn">キャンセル</button>
+      <button class="btn btn-check" id="passwordSubmitBtn">OK</button>
+    </div>
+  </div>
+</div>
+
+<div class="overlay hidden" id="settingsOverlay">
+  <div class="overlay-card">
+    <h2>設定</h2>
+
+    <div class="settings-section">
+      <h3>保有数の編集</h3>
+      <h4>🎫 チケット</h4>
+      <div class="settings-cost-row"><label>ふくびきチケット</label><input type="number" id="editWalletInput" min="0"></div>
+      <div class="settings-cost-row"><label>スペシャルチケット</label><input type="number" id="editSpecialInput" min="0"></div>
+      <h4>🎁 ふくびきポイント</h4>
+      <div class="settings-cost-row"><label>こうかんポイント残高</label><input type="number" id="editPrizePointsInput" min="0"></div>
+      <div class="settings-status" id="holdingsStatus"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="holdingsCloseBtn">とじる</button>
+        <button class="btn btn-check" id="updateHoldingsBtn">保存する</button>
+      </div>
+    </div>
+
+    <hr class="settings-divider">
+
+    <div class="settings-section">
+      <h3>ふくびきの内容とかくりつ</h3>
+      <div class="settings-cost-row">
+        <label for="costInput">1回のチケット</label>
+        <input type="number" id="costInput" min="1" max="9999">
+      </div>
+      <div class="settings-row">
+        <div class="rank-badge">1等<b>100pt</b></div>
+        <input type="number" id="rank1ProbInput" min="0" max="100">
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-row">
+        <div class="rank-badge">2等<b>50pt</b></div>
+        <input type="number" id="rank2ProbInput" min="0" max="100">
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-row">
+        <div class="rank-badge">3等<b>20pt</b></div>
+        <input type="number" id="rank3ProbInput" min="0" max="100">
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-row">
+        <div class="rank-badge">4等<b>10pt</b></div>
+        <input type="number" id="rank4ProbInput" min="0" max="100">
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-row readonly">
+        <div class="rank-badge">5等<b>5pt</b></div>
+        <input type="number" id="rank5ProbDisplay" disabled>
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-status" id="normalGachaStatus"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="normalGachaCloseBtn">とじる</button>
+        <button class="btn btn-check" id="normalGachaSaveBtn">保存する</button>
+      </div>
+    </div>
+
+    <hr class="settings-divider">
+
+    <div class="settings-section">
+      <h3>スペシャル問題</h3>
+      <div class="settings-cost-row">
+        <label for="specialProbInput">出現確率（もんだいごと）</label>
+        <input type="number" id="specialProbInput" min="0" max="100">
+        <span class="pct-suffix">%</span>
+      </div>
+      <div style="font-size:11px;color:var(--chalk-dim);margin-bottom:10px;">せいかいすると、スペシャルチケットが1枚もらえます</div>
+      <div class="settings-status" id="specialProbStatus"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="specialProbCloseBtn">とじる</button>
+        <button class="btn btn-check" id="specialProbSaveBtn">保存する</button>
+      </div>
+    </div>
+
+    <hr class="settings-divider">
+
+    <div class="settings-section">
+      <h3>スペシャルふくびきの内容とかくりつ</h3>
+      <div class="settings-cost-row">
+        <label for="specialCostInput">1回のスペシャルチケット</label>
+        <input type="number" id="specialCostInput" min="1" max="9999">
+      </div>
+      <div class="settings-row">
+        <div class="rank-badge">1等<b>100pt</b></div>
+        <input type="number" id="sRank1ProbInput" min="0" max="100">
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-row">
+        <div class="rank-badge">2等<b>50pt</b></div>
+        <input type="number" id="sRank2ProbInput" min="0" max="100">
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-row">
+        <div class="rank-badge">3等<b>20pt</b></div>
+        <input type="number" id="sRank3ProbInput" min="0" max="100">
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-row">
+        <div class="rank-badge">4等<b>10pt</b></div>
+        <input type="number" id="sRank4ProbInput" min="0" max="100">
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-row readonly">
+        <div class="rank-badge">5等<b>5pt</b></div>
+        <input type="number" id="sRank5ProbDisplay" disabled>
+        <div class="pct-label">%</div>
+      </div>
+      <div class="settings-status" id="specialGachaStatus"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="specialGachaCloseBtn">とじる</button>
+        <button class="btn btn-check" id="specialGachaSaveBtn">保存する</button>
+      </div>
+    </div>
+
+    <hr class="settings-divider">
+
+    <div class="settings-section">
+      <h3>チケット配布の上限</h3>
+      <div class="settings-cost-row">
+        <label for="gachaLimitInput">1日の配布上限・合計（0で無制限）</label>
+        <input type="number" id="gachaLimitInput" min="0" max="9999">
+      </div>
+      <div style="font-size:11px;color:var(--chalk-dim);margin-top:-6px;margin-bottom:10px;">ふくびきチケット＋スペシャルチケットの合計に適用され、日付が変わると自動でリセットされます</div>
+      <div style="font-size:12px;color:var(--chalk-dim);margin-bottom:10px;">本日の配布数: <span id="currentPlayCountText">0</span>枚</div>
+
+      <div class="ev-box">
+        <div class="ev-title">配布上限をすべて使った場合の予想ポイント（かくりつをもとに計算）</div>
+        <div class="ev-row">🎰 ノーマルのみで使った場合: <b id="evNormalText">0</b> pt</div>
+        <div class="ev-row">✨ スペシャルのみで使った場合: <b id="evSpecialText">0</b> pt</div>
+        <div class="ev-row ev-row-highlight">🎯 実際の配布比率で計算: <b id="evMixedText">0</b> pt</div>
+        <div class="ev-note">スペシャル問題の出現確率から、ふくびき／スペシャル各チケットの配布比率を計算しています</div>
+      </div>
+
+      <button class="btn btn-secondary" id="resetPlayCountBtn" style="margin-bottom:10px;">強制リセットする</button>
+      <div class="settings-status" id="limitStatus"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="limitCloseBtn">とじる</button>
+        <button class="btn btn-check" id="limitSaveBtn">保存する</button>
+      </div>
+    </div>
+
+    <hr class="settings-divider">
+
+    <div class="settings-section">
+      <h3>タイトルのロック解放</h3>
+      <div style="font-size:11px;color:var(--chalk-dim);margin-bottom:10px;">オンにすると開放され、タイトル画面からえらべるようになります（問題データが未整備の場合は「準備中」と表示されます）</div>
+      <div class="settings-cost-row"><label>ひきざんを開放</label>
+        <input type="checkbox" id="lockVisibleSubtract" style="width:22px;height:22px;">
+      </div>
+      <div class="settings-cost-row"><label>分数を開放</label>
+        <input type="checkbox" id="lockVisibleFraction" style="width:22px;height:22px;">
+      </div>
+      <div class="settings-status" id="lockVisibleStatus"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="lockVisibleCloseBtn">とじる</button>
+        <button class="btn btn-check" id="lockVisibleSaveBtn">保存する</button>
+      </div>
+    </div>
+
+    <hr class="settings-divider">
+
+    <div class="settings-section" style="margin-bottom:0;">
+      <h3>パスワードの変更</h3>
+      <input type="password" inputmode="numeric" class="pw-input" id="newPasswordInput" maxlength="12" placeholder="新しいパスワード" style="margin-bottom:8px;">
+      <input type="password" inputmode="numeric" class="pw-input" id="newPasswordConfirmInput" maxlength="12" placeholder="もう一度入力">
+      <div class="settings-status" id="passwordChangeStatus"></div>
+      <div class="btn-row">
+        <button class="btn btn-secondary" id="passwordSectionCloseBtn">とじる</button>
+        <button class="btn btn-check" id="changePasswordBtn">保存する</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+(function(){
+  var WALLET_KEY = 'mathQuizGachaTickets';
+  var SPECIAL_KEY = 'mathQuizSpecialTickets';
+  var PRIZE_KEY = 'mathQuizPrizes';
+  var CONFIG_KEY = 'mathQuizGachaConfig';
+  var PASSWORD_KEY = 'mathQuizGachaPassword';
+  var PLAYCOUNT_KEY = 'mathQuizGachaPlayCount';
+  var DEFAULT_PASSWORD = '0000';
+  var TOTAL = 5;
+  var RANK_POINTS = [100, 50, 20, 10, 5];
+  var RANK_ICONS = ['🥇','🥈','🥉','🏅','🎖'];
+
+  function defaultConfig(){
+    return {
+      cost: 5,
+      probs: [5, 10, 20, 25], // rank1..4, rank5 = remainder
+      specialQuizProb: 2,
+      specialCost: 1,
+      specialProbs: [10, 20, 30, 25], // rank1..4, rank5 = remainder
+      gachaLimit: 0,
+      unlocked: { subtract: false, fraction: false }
+    };
+  }
+
+  function loadConfig(){
+    try {
+      var v = window.localStorage.getItem(CONFIG_KEY);
+      var parsed = v ? JSON.parse(v) : null;
+      var d = defaultConfig();
+      if(parsed && typeof parsed === 'object' && Array.isArray(parsed.probs) && parsed.probs.length === 4){
+        var lv = (parsed.unlocked && typeof parsed.unlocked === 'object') ? parsed.unlocked : {};
+        return {
+          cost: parseInt(parsed.cost, 10) || d.cost,
+          probs: parsed.probs.map(function(p, i){ return (typeof p === 'number' && p >= 0) ? p : d.probs[i]; }),
+          specialQuizProb: (typeof parsed.specialQuizProb === 'number') ? parsed.specialQuizProb : d.specialQuizProb,
+          specialCost: parseInt(parsed.specialCost, 10) || d.specialCost,
+          specialProbs: (Array.isArray(parsed.specialProbs) && parsed.specialProbs.length === 4)
+            ? parsed.specialProbs.map(function(p, i){ return (typeof p === 'number' && p >= 0) ? p : d.specialProbs[i]; })
+            : d.specialProbs,
+          gachaLimit: (typeof parsed.gachaLimit === 'number') ? parsed.gachaLimit : d.gachaLimit,
+          unlocked: {
+            subtract: (typeof lv.subtract === 'boolean') ? lv.subtract : d.unlocked.subtract,
+            fraction: (typeof lv.fraction === 'boolean') ? lv.fraction : d.unlocked.fraction
+          }
+        };
+      }
+    } catch(e){}
+    return defaultConfig();
+  }
+  function saveConfig(cfg){
+    try {
+      window.localStorage.setItem(CONFIG_KEY, JSON.stringify(cfg));
+    } catch(e){}
+  }
+
+  function loadPassword(){
+    try {
+      var v = window.localStorage.getItem(PASSWORD_KEY);
+      return v || DEFAULT_PASSWORD;
+    } catch(e){
+      return DEFAULT_PASSWORD;
+    }
+  }
+  function savePassword(pw){
+    try {
+      window.localStorage.setItem(PASSWORD_KEY, pw);
+    } catch(e){}
+  }
+
+  function loadWallet(){
+    try {
+      var v = window.localStorage.getItem(WALLET_KEY);
+      var n = parseInt(v, 10);
+      return isNaN(n) ? 0 : n;
+    } catch(e){
+      return 0;
+    }
+  }
+  function saveWallet(n){
+    try {
+      window.localStorage.setItem(WALLET_KEY, String(n));
+    } catch(e){}
+  }
+
+  function loadSpecialTickets(){
+    try {
+      var v = window.localStorage.getItem(SPECIAL_KEY);
+      var n = parseInt(v, 10);
+      return isNaN(n) ? 0 : n;
+    } catch(e){
+      return 0;
+    }
+  }
+  function saveSpecialTickets(n){
+    try {
+      window.localStorage.setItem(SPECIAL_KEY, String(n));
+    } catch(e){}
+  }
+
+  function loadPrizes(){
+    try {
+      var v = window.localStorage.getItem(PRIZE_KEY);
+      var parsed = v ? JSON.parse(v) : null;
+      if(parsed && Array.isArray(parsed.counts) && parsed.counts.length === 5 && typeof parsed.points === 'number'){
+        return { counts: parsed.counts.slice(), points: parsed.points };
+      }
+    } catch(e){}
+    return { counts: [0,0,0,0,0], points: 0 };
+  }
+  function savePrizes(p){
+    try {
+      window.localStorage.setItem(PRIZE_KEY, JSON.stringify(p));
+    } catch(e){}
+  }
+
+  function todayString(){
+    var d = new Date();
+    var y = d.getFullYear();
+    var m = String(d.getMonth()+1).padStart(2, '0');
+    var day = String(d.getDate()).padStart(2, '0');
+    return y + '-' + m + '-' + day;
+  }
+
+  function loadPlayCount(){
+    try {
+      var v = window.localStorage.getItem(PLAYCOUNT_KEY);
+      var parsed = v ? JSON.parse(v) : null;
+      if(parsed && typeof parsed.date === 'string' && typeof parsed.count === 'number'){
+        if(parsed.date !== todayString()){
+          return { date: todayString(), count: 0 };
+        }
+        return parsed;
+      }
+    } catch(e){}
+    return { date: todayString(), count: 0 };
+  }
+  function savePlayCount(state){
+    try {
+      window.localStorage.setItem(PLAYCOUNT_KEY, JSON.stringify(state));
+    } catch(e){}
+  }
+
+  var CORRECT_KEY = 'mathQuizCorrectCount';
+  function loadCorrectCount(){
+    try {
+      var v = window.localStorage.getItem(CORRECT_KEY);
+      var n = parseInt(v, 10);
+      return isNaN(n) ? 0 : n;
+    } catch(e){
+      return 0;
+    }
+  }
+  function saveCorrectCount(n){
+    try {
+      window.localStorage.setItem(CORRECT_KEY, String(n));
+    } catch(e){}
+  }
+
+  function makeQuestions(n, cfg, category){
+    var qs = [];
+    for(var i=0;i<n;i++){
+      var q;
+      if(category === 'multiply'){
+        var f1 = 2 + Math.floor(Math.random()*8); // 2-9
+        var f2 = 2 + Math.floor(Math.random()*8); // 2-9
+        q = { category: 'multiply', a: f1, b: f2, op: '×', answer: f1*f2, special: false };
+      } else if(category === 'add_basic'){
+        var a1 = 1 + Math.floor(Math.random()*20); // 1-20
+        var b1 = 1 + Math.floor(Math.random()*20); // 1-20
+        q = { category: 'add_basic', a: a1, b: b1, op: '+', answer: a1+b1, special: false };
+      } else if(category === 'add_advanced'){
+        var a2 = 10 + Math.floor(Math.random()*90); // 10-99
+        var b2 = 10 + Math.floor(Math.random()*90); // 10-99
+        q = { category: 'add_advanced', a: a2, b: b2, op: '+', answer: a2+b2, special: false };
+      } else {
+        var divisor = 2 + Math.floor(Math.random()*8); // 2-9
+        var wantRemainder = Math.random() < 0.75;
+        var quotientPart = 2 + Math.floor(Math.random()*9); // 2-10
+        var dividend;
+        if(wantRemainder){
+          var r = 1 + Math.floor(Math.random()*(divisor-1));
+          dividend = quotientPart*divisor + r;
+        } else {
+          dividend = quotientPart*divisor;
+        }
+        q = {
+          category: 'division',
+          dividend: dividend,
+          divisor: divisor,
+          quotient: Math.floor(dividend/divisor),
+          remainder: dividend % divisor,
+          special: false
+        };
+        var specialChance = (cfg && typeof cfg.specialQuizProb === 'number') ? cfg.specialQuizProb : 20;
+        if(Math.random()*100 < specialChance){
+          q.special = true;
+          q.addA = 10 + Math.floor(Math.random()*80);
+          q.addB = 10 + Math.floor(Math.random()*80);
+          q.addAnswer = q.addA + q.addB;
+        }
+      }
+      qs.push(q);
+    }
+    return qs;
+  }
+
+  var CATEGORY_LABELS = {
+    division: 'わり算編',
+    multiply: 'かけ算編',
+    add_basic: '足し算編（初級）',
+    add_advanced: '足し算編（上級）',
+    subtract: 'ひきざん編',
+    fraction: '分数編'
+  };
+  var CATEGORY_MASTER = {
+    division: 'わり算マスター',
+    multiply: 'かけ算マスター',
+    add_basic: 'たし算マスター',
+    add_advanced: 'たし算マスター'
+  };
+
+  var walletTickets = loadWallet();
+  var specialTickets = loadSpecialTickets();
+  var prizes = loadPrizes();
+  var gachaConfig = loadConfig();
+  var gachaPassword = loadPassword();
+  var playCountState = loadPlayCount();
+
+  function ensureCurrentDay(){
+    var today = todayString();
+    if(playCountState.date !== today){
+      playCountState = { date: today, count: 0 };
+      savePlayCount(playCountState);
+    }
+  }
+
+  var selectedCategory = 'division';
+  var correctCount = loadCorrectCount();
+  var sessionTicketsEarned = 0;
+  var questions = [];
+  var idx = 0;
+  var results = [];
+
+  var dotsEl = document.getElementById('dots');
+  var countEl = document.getElementById('count');
+  var problemEl = document.getElementById('problem');
+  var titleScreen = document.getElementById('titleScreen');
+  var mainScreen = document.getElementById('mainScreen');
+  var categoryBtns = document.querySelectorAll('.category-btn');
+  var categorySubtitle = document.getElementById('categorySubtitle');
+  var titleStatus = document.getElementById('titleStatus');
+  var titleRemaining = document.getElementById('titleRemaining');
+  var backToTitleBtn = document.getElementById('backToTitleBtn');
+  var lockVisibleSubtract = document.getElementById('lockVisibleSubtract');
+  var lockVisibleFraction = document.getElementById('lockVisibleFraction');
+  var lockVisibleStatus = document.getElementById('lockVisibleStatus');
+  var lockVisibleCloseBtn = document.getElementById('lockVisibleCloseBtn');
+  var lockVisibleSaveBtn = document.getElementById('lockVisibleSaveBtn');
+  var divisionAnswerRow = document.getElementById('divisionAnswerRow');
+  var singleAnswerRow = document.getElementById('singleAnswerRow');
+  var singleAnswerInput = document.getElementById('singleAnswerInput');
+
+  var qInput = document.getElementById('quotientInput');
+  var rInput = document.getElementById('remainderInput');
+  var quizCardEl = document.getElementById('quizCard');
+  var specialBlock = document.getElementById('specialBlock');
+  var specialProblemEl = document.getElementById('specialProblem');
+  var specialAnswerInput = document.getElementById('specialAnswerInput');
+  var feedbackEl = document.getElementById('feedback');
+  var checkBtn = document.getElementById('checkBtn');
+  var nextBtn = document.getElementById('nextBtn');
+  var resultCard = document.getElementById('resultCard');
+  var scoreText = document.getElementById('scoreText');
+  var earnedText = document.getElementById('earnedText');
+  var totalText = document.getElementById('totalText');
+  var scoreMsg = document.getElementById('scoreMsg');
+  var reviewEl = document.getElementById('review');
+  var retryBtn = document.getElementById('retryBtn');
+  var endBtn = document.getElementById('endBtn');
+  var walletTop = document.getElementById('walletTop');
+  var specialTicketTop = document.getElementById('specialTicketTop');
+  var walletTopMain = document.getElementById('walletTopMain');
+  var specialTicketTopMain = document.getElementById('specialTicketTopMain');
+
+  var gachaBtn = document.getElementById('gachaBtn');
+  var exchangeMenuBtn = document.getElementById('exchangeMenuBtn');
+
+  var exchangeOverlay = document.getElementById('exchangeOverlay');
+  var exchangeBalanceText = document.getElementById('exchangeBalanceText');
+  var exchangeAmountInput = document.getElementById('exchangeAmountInput');
+  var exchangeStatus = document.getElementById('exchangeStatus');
+  var exchangeBtn = document.getElementById('exchangeBtn');
+  var exchangeCloseBtn = document.getElementById('exchangeCloseBtn');
+
+  var gachaScreenOverlay = document.getElementById('gachaScreenOverlay');
+  var gachaScreenCloseBtn = document.getElementById('gachaScreenCloseBtn');
+  var gachaLimitInfo = document.getElementById('gachaLimitInfo');
+  var walletBalanceText = document.getElementById('walletBalanceText');
+  var normalCostText = document.getElementById('normalCostText');
+  var specialBalanceText = document.getElementById('specialBalanceText');
+  var specialCostText = document.getElementById('specialCostText');
+  var spinNormalBtn = document.getElementById('spinNormalBtn');
+  var spinSpecialBtn = document.getElementById('spinSpecialBtn');
+
+  var gachaOverlay = document.getElementById('gachaOverlay');
+  var gachaOverlayTitle = document.getElementById('gachaOverlayTitle');
+  var gachaIcon = document.getElementById('gachaIcon');
+  var gachaTitle = document.getElementById('gachaTitle');
+  var gachaSub = document.getElementById('gachaSub');
+  var gachaCloseBtn = document.getElementById('gachaCloseBtn');
+
+  var settingsLinkBtn = document.getElementById('settingsLinkBtn');
+  var passwordOverlay = document.getElementById('passwordOverlay');
+  var passwordOverlayTitle = document.getElementById('passwordOverlayTitle');
+  var passwordInput = document.getElementById('passwordInput');
+  var passwordStatus = document.getElementById('passwordStatus');
+  var passwordCancelBtn = document.getElementById('passwordCancelBtn');
+  var passwordSubmitBtn = document.getElementById('passwordSubmitBtn');
+  var settingsOverlay = document.getElementById('settingsOverlay');
+
+  var editWalletInput = document.getElementById('editWalletInput');
+  var editSpecialInput = document.getElementById('editSpecialInput');
+  var editPrizePointsInput = document.getElementById('editPrizePointsInput');
+  var updateHoldingsBtn = document.getElementById('updateHoldingsBtn');
+  var holdingsStatus = document.getElementById('holdingsStatus');
+  var holdingsCloseBtn = document.getElementById('holdingsCloseBtn');
+
+  var costInput = document.getElementById('costInput');
+  var rankProbInputs = [
+    document.getElementById('rank1ProbInput'), document.getElementById('rank2ProbInput'),
+    document.getElementById('rank3ProbInput'), document.getElementById('rank4ProbInput')
+  ];
+  var rank5ProbDisplay = document.getElementById('rank5ProbDisplay');
+  var normalGachaStatus = document.getElementById('normalGachaStatus');
+  var normalGachaCloseBtn = document.getElementById('normalGachaCloseBtn');
+  var normalGachaSaveBtn = document.getElementById('normalGachaSaveBtn');
+
+  var specialProbInput = document.getElementById('specialProbInput');
+  var specialProbStatus = document.getElementById('specialProbStatus');
+  var specialProbCloseBtn = document.getElementById('specialProbCloseBtn');
+  var specialProbSaveBtn = document.getElementById('specialProbSaveBtn');
+
+  var specialCostInput = document.getElementById('specialCostInput');
+  var sRankProbInputs = [
+    document.getElementById('sRank1ProbInput'), document.getElementById('sRank2ProbInput'),
+    document.getElementById('sRank3ProbInput'), document.getElementById('sRank4ProbInput')
+  ];
+  var sRank5ProbDisplay = document.getElementById('sRank5ProbDisplay');
+  var specialGachaStatus = document.getElementById('specialGachaStatus');
+  var specialGachaCloseBtn = document.getElementById('specialGachaCloseBtn');
+  var specialGachaSaveBtn = document.getElementById('specialGachaSaveBtn');
+
+  var gachaLimitInput = document.getElementById('gachaLimitInput');
+  var evNormalText = document.getElementById('evNormalText');
+  var evSpecialText = document.getElementById('evSpecialText');
+  var evMixedText = document.getElementById('evMixedText');
+  var currentPlayCountText = document.getElementById('currentPlayCountText');
+  var resetPlayCountBtn = document.getElementById('resetPlayCountBtn');
+  var limitStatus = document.getElementById('limitStatus');
+  var limitCloseBtn = document.getElementById('limitCloseBtn');
+  var limitSaveBtn = document.getElementById('limitSaveBtn');
+
+  var newPasswordInput = document.getElementById('newPasswordInput');
+  var newPasswordConfirmInput = document.getElementById('newPasswordConfirmInput');
+  var changePasswordBtn = document.getElementById('changePasswordBtn');
+  var passwordChangeStatus = document.getElementById('passwordChangeStatus');
+  var passwordSectionCloseBtn = document.getElementById('passwordSectionCloseBtn');
+
+  var pendingAction = null; // 'settings' | 'exchange:<amount>'
+
+  function renderWalletTop(){
+    walletTop.textContent = walletTickets;
+    specialTicketTop.textContent = specialTickets;
+    walletTopMain.textContent = walletTickets;
+    specialTicketTopMain.textContent = specialTickets;
+  }
+
+  function canDistribute(){
+    ensureCurrentDay();
+    var limit = gachaConfig.gachaLimit || 0;
+    if(limit <= 0) return true;
+    return playCountState.count < limit;
+  }
+  function recordDistribution(){
+    ensureCurrentDay();
+    playCountState.count++;
+    savePlayCount(playCountState);
+  }
+  function distributionRemaining(){
+    ensureCurrentDay();
+    var limit = gachaConfig.gachaLimit || 0;
+    if(limit <= 0) return null;
+    return Math.max(0, limit - playCountState.count);
+  }
+
+  function renderTitleRemaining(){
+    var remaining = distributionRemaining();
+    if(remaining === null){
+      titleRemaining.textContent = '';
+    } else {
+      titleRemaining.innerHTML = '本日のチケット配布のこり: <b>' + remaining + '</b>枚';
+    }
+  }
+
+  function renderGachaScreen(){
+    ensureCurrentDay();
+    walletBalanceText.textContent = walletTickets;
+    normalCostText.textContent = gachaConfig.cost;
+    specialBalanceText.textContent = specialTickets;
+    specialCostText.textContent = gachaConfig.specialCost;
+    var limit = gachaConfig.gachaLimit || 0;
+    if(limit > 0){
+      gachaLimitInfo.textContent = '本日のチケット配布: ' + playCountState.count + ' / ' + limit + '枚';
+    } else {
+      gachaLimitInfo.textContent = '';
+    }
+    spinNormalBtn.disabled = walletTickets < gachaConfig.cost;
+    spinSpecialBtn.disabled = specialTickets < gachaConfig.specialCost;
+  }
+
+  function expandProbs(probs4){
+    // probs4[0..3] user-configured, rank5 = remainder
+    var sum4 = probs4[0]+probs4[1]+probs4[2]+probs4[3];
+    var p5 = Math.max(0, 100 - sum4);
+    return [probs4[0], probs4[1], probs4[2], probs4[3], p5];
+  }
+
+  function runGacha(opts){
+    var balance = opts.getBalance();
+    if(balance < opts.cost){
+      gachaOverlayTitle.textContent = opts.title;
+      gachaIcon.textContent = '😢';
+      gachaTitle.textContent = opts.costUnit + 'が足りません';
+      gachaTitle.className = 'gacha-result-title miss';
+      gachaSub.textContent = opts.cost + opts.costUnit + '必要です（いま ' + balance + opts.costUnit + '）';
+      gachaOverlay.classList.remove('hidden');
+      return;
+    }
+
+    opts.spend(opts.cost);
+
+    var probs = expandProbs(opts.probs4);
+    var roll = Math.random() * 100;
+    var acc = 0;
+    var rankIdx = 4;
+    for(var i=0;i<5;i++){
+      acc += probs[i];
+      if(roll < acc){ rankIdx = i; break; }
+    }
+
+    prizes.counts[rankIdx]++;
+    prizes.points += RANK_POINTS[rankIdx];
+    savePrizes(prizes);
+
+    renderGachaScreen();
+
+    gachaOverlayTitle.textContent = opts.title;
+    gachaIcon.textContent = RANK_ICONS[rankIdx];
+    gachaTitle.textContent = (rankIdx+1) + '等！';
+    gachaTitle.className = 'gacha-result-title';
+    gachaSub.textContent = '+' + RANK_POINTS[rankIdx] + 'ポイント 獲得！';
+    gachaOverlay.classList.remove('hidden');
+  }
+
+  function drawMainGacha(){
+    runGacha({
+      title: 'ふくびき けっか',
+      cost: gachaConfig.cost,
+      costUnit: '枚',
+      probs4: gachaConfig.probs,
+      getBalance: function(){ return walletTickets; },
+      spend: function(amt){
+        walletTickets -= amt;
+        saveWallet(walletTickets);
+        renderWalletTop();
+      }
+    });
+  }
+
+  function drawSpecialGacha(){
+    runGacha({
+      title: 'スペシャルふくびき けっか',
+      cost: gachaConfig.specialCost,
+      costUnit: '枚',
+      probs4: gachaConfig.specialProbs,
+      getBalance: function(){ return specialTickets; },
+      spend: function(amt){
+        specialTickets -= amt;
+        saveSpecialTickets(specialTickets);
+        renderWalletTop();
+      }
+    });
+  }
+
+  function renderExchangeScreen(){
+    exchangeBalanceText.textContent = prizes.points;
+    exchangeAmountInput.value = '';
+    exchangeStatus.textContent = '';
+    exchangeStatus.className = 'settings-status';
+  }
+
+  function performExchange(amount){
+    prizes.points -= amount;
+    savePrizes(prizes);
+    renderExchangeScreen();
+    exchangeStatus.textContent = amount + 'pt こうかんしました';
+    exchangeStatus.className = 'settings-status ok';
+  }
+
+  function renderDots(){
+    dotsEl.innerHTML = '';
+    for(var i=0;i<TOTAL;i++){
+      var d = document.createElement('div');
+      d.className = 'dot';
+      if(i < results.length){
+        d.classList.add(results[i].ok ? 'done-ok' : 'done-ng');
+      }
+      if(i === idx && i === results.length){
+        d.classList.add('current');
+      }
+      dotsEl.appendChild(d);
+    }
+  }
+
+  function renderQuestion(){
+    var q = questions[idx];
+    countEl.textContent = (idx+1) + ' / ' + TOTAL;
+
+    if(q.category === 'division'){
+      problemEl.innerHTML = q.dividend + ' <span class="op">÷</span> ' + q.divisor;
+      divisionAnswerRow.style.display = '';
+      singleAnswerRow.style.display = 'none';
+      qInput.value = '';
+      rInput.value = '';
+      qInput.disabled = false;
+      rInput.disabled = false;
+    } else {
+      problemEl.innerHTML = q.a + ' <span class="op">' + q.op + '</span> ' + q.b;
+      divisionAnswerRow.style.display = 'none';
+      singleAnswerRow.style.display = '';
+      singleAnswerInput.value = '';
+      singleAnswerInput.disabled = false;
+    }
+
+    if(q.special){
+      quizCardEl.classList.add('is-special');
+      specialProblemEl.innerHTML = q.addA + ' <span class="op">+</span> ' + q.addB;
+      specialAnswerInput.value = '';
+      specialAnswerInput.disabled = false;
+    } else {
+      quizCardEl.classList.remove('is-special');
+      specialAnswerInput.value = '';
+    }
+
+    feedbackEl.textContent = '';
+    feedbackEl.className = 'feedback';
+    checkBtn.classList.remove('hidden');
+    nextBtn.classList.add('hidden');
+    renderDots();
+    setTimeout(function(){ (q.category === 'division' ? qInput : singleAnswerInput).focus(); }, 50);
+  }
+
+  function checkAnswer(){
+    var q = questions[idx];
+    var mainOk;
+    if(q.category === 'division'){
+      var qv = parseInt(qInput.value, 10);
+      var rv = parseInt(rInput.value, 10);
+      mainOk = (qv === q.quotient) && (rv === q.remainder);
+    } else {
+      var av = parseInt(singleAnswerInput.value, 10);
+      mainOk = av === q.answer;
+    }
+    var specialOk = true;
+    if(q.special){
+      var sv = parseInt(specialAnswerInput.value, 10);
+      specialOk = sv === q.addAnswer;
+    }
+    var ok = mainOk && specialOk;
+    results.push({ ok: ok, q: q });
+
+    var msgParts = [];
+    if(ok){
+      msgParts.push('せいかい！');
+      if(q.special){
+        specialTickets++;
+        saveSpecialTickets(specialTickets);
+        renderWalletTop();
+        msgParts.push('スペシャルチケットを1枚 ゲット！');
+      }
+      correctCount++;
+      saveCorrectCount(correctCount);
+      if(correctCount % 5 === 0){
+        if(canDistribute()){
+          walletTickets += 1;
+          saveWallet(walletTickets);
+          recordDistribution();
+          renderWalletTop();
+          sessionTicketsEarned++;
+          msgParts.push('🎫 5問正解でふくびきチケットを1枚 ゲット！');
+        } else {
+          msgParts.push('（5問正解しましたが、本日のチケット配布上限のためふくびきチケットはもらえませんでした）');
+        }
+      }
+    } else {
+      if(q.category === 'division'){
+        if(q.special){
+          msgParts.push('ざんねん… わり算は ' + q.quotient + 'あまり' + q.remainder + '、たしざんは ' + q.addAnswer + ' が こたえだよ');
+        } else {
+          msgParts.push('ざんねん… こたえは ' + q.quotient + ' あまり ' + q.remainder);
+        }
+      } else {
+        msgParts.push('ざんねん… こたえは ' + q.answer + ' だよ');
+      }
+    }
+    feedbackEl.textContent = msgParts.join(' ');
+    feedbackEl.className = 'feedback ' + (ok ? 'ok' : 'ng');
+
+    if(q.category === 'division'){
+      qInput.disabled = true;
+      rInput.disabled = true;
+    } else {
+      singleAnswerInput.disabled = true;
+    }
+    if(q.special) specialAnswerInput.disabled = true;
+    checkBtn.classList.add('hidden');
+    nextBtn.classList.remove('hidden');
+    renderDots();
+  }
+
+  function nextQuestion(){
+    idx++;
+    if(idx >= TOTAL){
+      showResult();
+    } else {
+      renderQuestion();
+    }
+  }
+
+  function showResult(){
+    quizCardEl.classList.add('hidden');
+    resultCard.classList.remove('hidden');
+    var attempted = results.length;
+    var okCount = results.filter(function(r){ return r.ok; }).length;
+    var earned = sessionTicketsEarned;
+
+    scoreText.textContent = okCount + ' / ' + attempted;
+    earnedText.textContent = '+' + earned + '枚 獲得';
+    totalText.textContent = 'のこりのふくびきチケット: ' + walletTickets + '枚';
+
+    var masterLabel = CATEGORY_MASTER[selectedCategory] || '算数マスター';
+    var msg;
+    if(attempted === 0){
+      msg = 'また ちょうせんしてね';
+    } else if(okCount === attempted) {
+      msg = 'かんぺき！' + masterLabel + 'だね';
+    } else if(okCount >= attempted*0.7) {
+      msg = 'よくできました！';
+    } else if(okCount >= attempted*0.4) {
+      msg = 'もう少し！';
+    } else {
+      msg = 'れんしゅうすればきっとできるよ';
+    }
+    if(attempted < TOTAL){
+      msg += '（' + TOTAL + '問中' + attempted + '問に挑戦）';
+    }
+    scoreMsg.textContent = msg;
+
+    reviewEl.innerHTML = '';
+    results.forEach(function(r, i){
+      var row = document.createElement('div');
+      row.className = 'review-item';
+      var left = document.createElement('span');
+      left.className = 'rtext';
+      var t;
+      if(r.q.category === 'division'){
+        t = (i+1) + '. ' + r.q.dividend + '÷' + r.q.divisor + ' = ' + r.q.quotient + 'あまり' + r.q.remainder;
+        if(r.q.special){
+          t += ' ＋ ' + r.q.addA + '+' + r.q.addB + '=' + r.q.addAnswer + ' 🌟';
+        }
+      } else {
+        t = (i+1) + '. ' + r.q.a + r.q.op + r.q.b + ' = ' + r.q.answer;
+      }
+      left.textContent = t;
+      var right = document.createElement('span');
+      right.className = r.ok ? 'mark-ok' : 'mark-ng';
+      right.textContent = r.ok ? '○' : '×';
+      row.appendChild(left);
+      row.appendChild(right);
+      reviewEl.appendChild(row);
+    });
+  }
+
+  function restart(){
+    questions = makeQuestions(TOTAL, gachaConfig, selectedCategory);
+    idx = 0;
+    results = [];
+    sessionTicketsEarned = 0;
+    resultCard.classList.add('hidden');
+    quizCardEl.classList.remove('hidden');
+    renderQuestion();
+  }
+
+  checkBtn.addEventListener('click', function(){
+    var q = questions[idx];
+    var mainFilled = (q.category === 'division')
+      ? (qInput.value !== '' && rInput.value !== '')
+      : (singleAnswerInput.value !== '');
+    if(!mainFilled || (q.special && specialAnswerInput.value === '')){
+      feedbackEl.textContent = 'すべての らんに にゅうりょくしてね';
+      feedbackEl.className = 'feedback ng';
+      return;
+    }
+    checkAnswer();
+  });
+  nextBtn.addEventListener('click', nextQuestion);
+  endBtn.addEventListener('click', function(){
+    showResult();
+  });
+  retryBtn.addEventListener('click', restart);
+  rInput.addEventListener('keydown', function(e){ if(e.key === 'Enter' && !checkBtn.classList.contains('hidden')) checkAnswer(); });
+  qInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') rInput.focus(); });
+  singleAnswerInput.addEventListener('keydown', function(e){ if(e.key === 'Enter' && !checkBtn.classList.contains('hidden')) checkAnswer(); });
+
+  gachaBtn.addEventListener('click', function(){
+    renderGachaScreen();
+    gachaScreenOverlay.classList.remove('hidden');
+  });
+  gachaScreenCloseBtn.addEventListener('click', function(){
+    gachaScreenOverlay.classList.add('hidden');
+  });
+  spinNormalBtn.addEventListener('click', drawMainGacha);
+  spinSpecialBtn.addEventListener('click', drawSpecialGacha);
+  gachaCloseBtn.addEventListener('click', function(){
+    gachaOverlay.classList.add('hidden');
+  });
+
+  exchangeMenuBtn.addEventListener('click', function(){
+    renderExchangeScreen();
+    exchangeOverlay.classList.remove('hidden');
+  });
+  exchangeCloseBtn.addEventListener('click', function(){
+    exchangeOverlay.classList.add('hidden');
+  });
+  exchangeBtn.addEventListener('click', function(){
+    var amount = parseInt(exchangeAmountInput.value, 10);
+    if(!amount || amount <= 0){
+      exchangeStatus.textContent = 'こうかんするポイントを入力してね';
+      exchangeStatus.className = 'settings-status ng';
+      return;
+    }
+    if(amount > prizes.points){
+      exchangeStatus.textContent = 'ポイントが足りません（いま ' + prizes.points + 'pt）';
+      exchangeStatus.className = 'settings-status ng';
+      return;
+    }
+    openPasswordPrompt('exchange:' + amount, 'パスワードを入力（ポイント交換）');
+  });
+
+  function openPasswordPrompt(action, title){
+    pendingAction = action;
+    passwordOverlayTitle.textContent = title || 'パスワードを入力';
+    passwordInput.value = '';
+    passwordStatus.textContent = '';
+    passwordStatus.className = 'settings-status';
+    passwordOverlay.classList.remove('hidden');
+    setTimeout(function(){ passwordInput.focus(); }, 50);
+  }
+
+  settingsLinkBtn.addEventListener('click', function(){
+    openPasswordPrompt('settings', 'パスワードを入力');
+  });
+  passwordCancelBtn.addEventListener('click', function(){
+    pendingAction = null;
+    passwordOverlay.classList.add('hidden');
+  });
+
+  function computeRemainder(inputs){
+    var sum4 = 0;
+    for(var i=0;i<4;i++){
+      sum4 += parseFloat(inputs[i].value) || 0;
+    }
+    var remain = 100 - sum4;
+    if(remain < 0) remain = 0;
+    return remain;
+  }
+  function updateRank5Display(){
+    rank5ProbDisplay.value = computeRemainder(rankProbInputs);
+    updateEVDisplay();
+  }
+  function updateSRank5Display(){
+    sRank5ProbDisplay.value = computeRemainder(sRankProbInputs);
+    updateEVDisplay();
+  }
+
+  function evPerSpin(inputs){
+    var probs4 = inputs.map(function(inp){ return parseFloat(inp.value) || 0; });
+    var remain = computeRemainder(inputs);
+    var probs5 = probs4.concat([remain]);
+    var ev = 0;
+    for(var i=0;i<5;i++){
+      ev += (probs5[i] / 100) * RANK_POINTS[i];
+    }
+    return ev;
+  }
+
+  function updateEVDisplay(){
+    var limit = parseInt(gachaLimitInput.value, 10) || 0;
+    var evNormal = evPerSpin(rankProbInputs);
+    var evSpecial = evPerSpin(sRankProbInputs);
+
+    if(limit <= 0){
+      evNormalText.textContent = '無制限';
+      evSpecialText.textContent = '無制限';
+      evMixedText.textContent = '無制限';
+      return;
+    }
+
+    var normalCost = parseInt(costInput.value, 10) || 1;
+    var specialCost = parseInt(specialCostInput.value, 10) || 1;
+    var normalSpins = Math.floor(limit / normalCost);
+    var specialSpins = Math.floor(limit / specialCost);
+
+    evNormalText.textContent = Math.round(evNormal * normalSpins);
+    evSpecialText.textContent = Math.round(evSpecial * specialSpins);
+
+    // Realistic mix: 1 ふくびきチケット per completed 5-question round,
+    // plus an expected number of スペシャルチケット per round based on
+    // the special-question appearance rate (assuming correct answers).
+    var specialProb = parseFloat(specialProbInput.value) || 0;
+    var specialPerRound = 5 * (specialProb / 100);
+    var normalPerRound = 1;
+    var totalPerRound = specialPerRound + normalPerRound;
+    var specialShare = totalPerRound > 0 ? (specialPerRound / totalPerRound) : 0;
+    var normalShare = 1 - specialShare;
+
+    var mixedSpecialTickets = limit * specialShare;
+    var mixedNormalTickets = limit * normalShare;
+    var mixedSpecialSpins = Math.floor(mixedSpecialTickets / specialCost);
+    var mixedNormalSpins = Math.floor(mixedNormalTickets / normalCost);
+    var mixedPoints = mixedSpecialSpins * evSpecial + mixedNormalSpins * evNormal;
+
+    evMixedText.textContent = Math.round(mixedPoints);
+  }
+
+  function populateSettingsForm(){
+    editWalletInput.value = walletTickets;
+    editSpecialInput.value = specialTickets;
+    editPrizePointsInput.value = prizes.points;
+
+    costInput.value = gachaConfig.cost;
+    for(var i=0;i<4;i++){
+      rankProbInputs[i].value = gachaConfig.probs[i];
+    }
+    updateRank5Display();
+
+    specialProbInput.value = gachaConfig.specialQuizProb;
+
+    specialCostInput.value = gachaConfig.specialCost;
+    for(var j=0;j<4;j++){
+      sRankProbInputs[j].value = gachaConfig.specialProbs[j];
+    }
+    updateSRank5Display();
+
+    gachaLimitInput.value = gachaConfig.gachaLimit || 0;
+    ensureCurrentDay();
+    currentPlayCountText.textContent = playCountState.count;
+    updateEVDisplay();
+
+    lockVisibleSubtract.checked = gachaConfig.unlocked.subtract;
+    lockVisibleFraction.checked = gachaConfig.unlocked.fraction;
+
+    [holdingsStatus, normalGachaStatus, specialProbStatus, specialGachaStatus, limitStatus, lockVisibleStatus, passwordChangeStatus].forEach(function(el){
+      el.textContent = '';
+      el.className = 'settings-status';
+    });
+  }
+
+  function submitPassword(){
+    if(passwordInput.value !== gachaPassword){
+      passwordStatus.textContent = 'パスワードが違います';
+      passwordStatus.className = 'settings-status ng';
+      return;
+    }
+    passwordOverlay.classList.add('hidden');
+
+    if(pendingAction === 'settings'){
+      newPasswordInput.value = '';
+      newPasswordConfirmInput.value = '';
+      populateSettingsForm();
+      settingsOverlay.classList.remove('hidden');
+    } else if(pendingAction && pendingAction.indexOf('exchange:') === 0){
+      var amount = parseInt(pendingAction.slice(9), 10);
+      if(amount > 0 && amount <= prizes.points){
+        performExchange(amount);
+      } else {
+        exchangeStatus.textContent = 'ポイントが足りません';
+        exchangeStatus.className = 'settings-status ng';
+      }
+    }
+    pendingAction = null;
+  }
+  passwordSubmitBtn.addEventListener('click', submitPassword);
+  passwordInput.addEventListener('keydown', function(e){ if(e.key === 'Enter') submitPassword(); });
+
+  [holdingsCloseBtn, normalGachaCloseBtn, specialProbCloseBtn, specialGachaCloseBtn, limitCloseBtn, lockVisibleCloseBtn, passwordSectionCloseBtn].forEach(function(btn){
+    btn.addEventListener('click', function(){
+      settingsOverlay.classList.add('hidden');
+    });
+  });
+
+  rankProbInputs.forEach(function(inp){
+    inp.addEventListener('input', updateRank5Display);
+  });
+  sRankProbInputs.forEach(function(inp){
+    inp.addEventListener('input', updateSRank5Display);
+  });
+  gachaLimitInput.addEventListener('input', updateEVDisplay);
+  costInput.addEventListener('input', updateEVDisplay);
+  specialCostInput.addEventListener('input', updateEVDisplay);
+  specialProbInput.addEventListener('input', updateEVDisplay);
+
+  updateHoldingsBtn.addEventListener('click', function(){
+    var w = parseInt(editWalletInput.value, 10);
+    var sp = parseInt(editSpecialInput.value, 10);
+    var pts = parseInt(editPrizePointsInput.value, 10);
+
+    if(isNaN(w) || w < 0 || isNaN(sp) || sp < 0 || isNaN(pts) || pts < 0){
+      holdingsStatus.textContent = '保有数はすべて0以上の数字にしてね';
+      holdingsStatus.className = 'settings-status ng';
+      return;
+    }
+
+    walletTickets = w;
+    specialTickets = sp;
+    prizes.points = pts;
+    saveWallet(walletTickets);
+    saveSpecialTickets(specialTickets);
+    savePrizes(prizes);
+    renderWalletTop();
+    renderGachaScreen();
+
+    holdingsStatus.textContent = '保存しました';
+    holdingsStatus.className = 'settings-status ok';
+  });
+
+  resetPlayCountBtn.addEventListener('click', function(){
+    playCountState = { date: todayString(), count: 0 };
+    savePlayCount(playCountState);
+    currentPlayCountText.textContent = playCountState.count;
+    renderGachaScreen();
+    renderTitleRemaining();
+    limitStatus.textContent = '配布数をリセットしました';
+    limitStatus.className = 'settings-status ok';
+  });
+
+  normalGachaSaveBtn.addEventListener('click', function(){
+    var cost = parseInt(costInput.value, 10);
+    var probs = rankProbInputs.map(function(inp){ return parseFloat(inp.value); });
+
+    if(!cost || cost <= 0){
+      normalGachaStatus.textContent = 'チケット数は1以上にしてね';
+      normalGachaStatus.className = 'settings-status ng';
+      return;
+    }
+    var sum4 = 0;
+    for(var i=0;i<4;i++){
+      if(isNaN(probs[i]) || probs[i] < 0){
+        normalGachaStatus.textContent = 'かくりつは0以上の数字にしてね';
+        normalGachaStatus.className = 'settings-status ng';
+        return;
+      }
+      sum4 += probs[i];
+    }
+    if(sum4 > 100){
+      normalGachaStatus.textContent = '1〜4等のかくりつ合計が100%以下になるようにしてね';
+      normalGachaStatus.className = 'settings-status ng';
+      return;
+    }
+
+    gachaConfig.cost = cost;
+    gachaConfig.probs = probs;
+    saveConfig(gachaConfig);
+    renderGachaScreen();
+    normalGachaStatus.textContent = '保存しました';
+    normalGachaStatus.className = 'settings-status ok';
+  });
+
+  specialProbSaveBtn.addEventListener('click', function(){
+    var prob = parseFloat(specialProbInput.value);
+    if(isNaN(prob) || prob < 0 || prob > 100){
+      specialProbStatus.textContent = '確率は0〜100の数字にしてね';
+      specialProbStatus.className = 'settings-status ng';
+      return;
+    }
+    gachaConfig.specialQuizProb = prob;
+    saveConfig(gachaConfig);
+    specialProbStatus.textContent = '保存しました';
+    specialProbStatus.className = 'settings-status ok';
+  });
+
+  specialGachaSaveBtn.addEventListener('click', function(){
+    var cost = parseInt(specialCostInput.value, 10);
+    var probs = sRankProbInputs.map(function(inp){ return parseFloat(inp.value); });
+
+    if(!cost || cost <= 0){
+      specialGachaStatus.textContent = 'チケット数は1以上にしてね';
+      specialGachaStatus.className = 'settings-status ng';
+      return;
+    }
+    var sum4 = 0;
+    for(var i=0;i<4;i++){
+      if(isNaN(probs[i]) || probs[i] < 0){
+        specialGachaStatus.textContent = 'かくりつは0以上の数字にしてね';
+        specialGachaStatus.className = 'settings-status ng';
+        return;
+      }
+      sum4 += probs[i];
+    }
+    if(sum4 > 100){
+      specialGachaStatus.textContent = '1〜4等のかくりつ合計が100%以下になるようにしてね';
+      specialGachaStatus.className = 'settings-status ng';
+      return;
+    }
+
+    gachaConfig.specialCost = cost;
+    gachaConfig.specialProbs = probs;
+    saveConfig(gachaConfig);
+    renderGachaScreen();
+    specialGachaStatus.textContent = '保存しました';
+    specialGachaStatus.className = 'settings-status ok';
+  });
+
+  limitSaveBtn.addEventListener('click', function(){
+    var limit = parseInt(gachaLimitInput.value, 10);
+    if(isNaN(limit) || limit < 0){
+      limitStatus.textContent = '配布上限は0以上の数字にしてね';
+      limitStatus.className = 'settings-status ng';
+      return;
+    }
+    gachaConfig.gachaLimit = limit;
+    saveConfig(gachaConfig);
+    renderGachaScreen();
+    renderTitleRemaining();
+    limitStatus.textContent = '保存しました';
+    limitStatus.className = 'settings-status ok';
+  });
+
+  changePasswordBtn.addEventListener('click', function(){
+    var p1 = newPasswordInput.value;
+    var p2 = newPasswordConfirmInput.value;
+    if(!p1 || p1.length < 1){
+      passwordChangeStatus.textContent = '新しいパスワードを入力してね';
+      passwordChangeStatus.className = 'settings-status ng';
+      return;
+    }
+    if(p1 !== p2){
+      passwordChangeStatus.textContent = 'パスワードが一致しません';
+      passwordChangeStatus.className = 'settings-status ng';
+      return;
+    }
+    gachaPassword = p1;
+    savePassword(gachaPassword);
+    newPasswordInput.value = '';
+    newPasswordConfirmInput.value = '';
+    passwordChangeStatus.textContent = 'パスワードを変更しました';
+    passwordChangeStatus.className = 'settings-status ok';
+  });
+
+  var IMPLEMENTED_CATEGORIES = ['division', 'multiply', 'add_basic', 'add_advanced'];
+
+  categoryBtns.forEach(function(btn){
+    btn.addEventListener('click', function(){
+      var lockId = btn.getAttribute('data-lockid');
+      if(lockId && !gachaConfig.unlocked[lockId]){
+        titleStatus.textContent = '🔒 このモードはまだ未開放です';
+        return;
+      }
+
+      var category = btn.getAttribute('data-category');
+      if(IMPLEMENTED_CATEGORIES.indexOf(category) === -1){
+        titleStatus.textContent = '📘 この問題はまだ準備中です。もうしばらくお待ちください。';
+        return;
+      }
+
+      titleStatus.textContent = '';
+      selectedCategory = category;
+      categorySubtitle.textContent = CATEGORY_LABELS[selectedCategory] || '';
+
+      questions = makeQuestions(TOTAL, gachaConfig, selectedCategory);
+      idx = 0;
+      results = [];
+      sessionTicketsEarned = 0;
+      resultCard.classList.add('hidden');
+      quizCardEl.classList.remove('hidden');
+
+      titleScreen.classList.add('hidden');
+      mainScreen.classList.remove('hidden');
+      renderQuestion();
+    });
+  });
+
+  function applyLockState(){
+    var map = { subtract: gachaConfig.unlocked.subtract, fraction: gachaConfig.unlocked.fraction };
+    categoryBtns.forEach(function(btn){
+      var lockId = btn.getAttribute('data-lockid');
+      if(!lockId) return;
+      var base = btn.getAttribute('data-base');
+      if(map[lockId]){
+        btn.classList.remove('locked');
+        btn.textContent = base;
+      } else {
+        btn.classList.add('locked');
+        btn.textContent = '🔒 ' + base;
+      }
+    });
+  }
+
+  lockVisibleSaveBtn.addEventListener('click', function(){
+    gachaConfig.unlocked = {
+      subtract: lockVisibleSubtract.checked,
+      fraction: lockVisibleFraction.checked
+    };
+    saveConfig(gachaConfig);
+    applyLockState();
+    lockVisibleStatus.textContent = '保存しました';
+    lockVisibleStatus.className = 'settings-status ok';
+  });
+
+  backToTitleBtn.addEventListener('click', function(){
+    mainScreen.classList.add('hidden');
+    titleScreen.classList.remove('hidden');
+    titleStatus.textContent = '';
+  });
+
+  applyLockState();
+  renderWalletTop();
+  renderTitleRemaining();
+})();
+</script>
+</body>
+</html>
